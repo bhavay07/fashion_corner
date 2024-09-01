@@ -1,30 +1,22 @@
-import React from 'react';
-import { easing } from 'maath';
+import React, { useEffect } from 'react';
 import { useSnapshot } from 'valtio';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
-import { Decal, useGLTF, useTexture } from '@react-three/drei';
+import { useGLTF, useTexture, Decal } from '@react-three/drei';
 import state from '../store';
+
 const Shirt = () => {
   const snap = useSnapshot(state);
   const { nodes, materials } = useGLTF('/shirt_baked.glb');
   const logoTexture = useTexture(snap.logoDecal);
   const fullTexture = useTexture(snap.fullDecal);
-  useFrame((state, delta) => {
-    if (true) {
-      //easing.dampC(materials.lambert1.color, snap.color, 0.25, delta);
-      materials.lambert1.color.set('blue'); // Set to any color you want
 
+  useEffect(() => {
+    if (materials.lambert1) {
+      materials.lambert1.color.setStyle(snap.color);
     }
-     else {
-      console.warn('Material "lambert1" not found');
-    }
-  });
-  console.log('Materials:', materials,snap.color);
+  }, [snap.color, materials.lambert1]);
 
-  const stateString = JSON.stringify(snap);
   return (
-    <group>
+    <group key={snap.color}>
       <mesh
         castShadow
         geometry={nodes.T_Shirt_male.geometry}
@@ -34,7 +26,7 @@ const Shirt = () => {
         {snap.isFullTexture && fullTexture && (
           <Decal 
             position={[0, 0, 0]}
-            rotation={[12, 12, 31]}
+            rotation={[0, 0, 0]}  // Adjust rotation as needed
             scale={1}
             map={fullTexture}
             depthTest={false}
@@ -56,4 +48,5 @@ const Shirt = () => {
     </group>
   );
 }
+
 export default Shirt;
